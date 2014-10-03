@@ -1,0 +1,194 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>SubwayMaps (Africa)</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		
+<!--	<script type="text/javascript" charset="utf-8" src="scripts/cordova.js"></script>	-->
+		
+		<script type="text/javascript" charset="utf-8" src="scripts/jquery/jquery.js"></script>
+				<script type="text/javascript">
+		$(document).bind("mobileinit", function(){
+		    $.mobile.ajaxEnabled = false;
+		    $.mobile.pushStateEnabled = false;
+		    $.mobile.touchOverflowEnabled = false;
+		    $.mobile.defaultPageTransition  = 'slide';
+		    $.mobile.defaultDialogTransition = 'pop';
+		    $.mobile.transitionFallbacks.slide = 'none';
+		    $.mobile.transitionFallbacks.pop = 'none';
+		    $.mobile.buttonMarkup.hoverDelay = 0;
+		    $.mobile.phonegapNavigationEnabled = true;
+		});
+		</script>
+		<script type="text/javascript" charset="utf-8" src="scripts/jquery/jquery.mobile.js"></script>
+				
+		<script type="text/javascript" charset="utf-8" src="scripts/jquery/flexcroll.js"></script>
+		
+		<script type="text/javascript" charset="utf-8" src="scripts/domain.js"></script>
+		<script type="text/javascript" charset="utf-8" src="scripts/commons.js"></script>
+		
+		
+		<link rel="stylesheet" type="text/css" href="css/jquery.mobile.css"/>
+		<link rel="stylesheet" type="text/css" href="css/flexcrollstyles.css"/>
+		
+		<style type="text/css">
+			.vscrollerbase, .hscrollerbase {
+				visibility: hidden !important; /* visible */
+			}
+			
+			.vscrollerbar, .hscrollerbar { 
+				padding: 0px;
+			}
+		</style>
+		<script type="text/javascript" charset="utf-8">
+		
+			var defaultCity	= 'Tunis';
+			var tubeMapsImages = {
+				'Algiers': new CityTubeMap('Algiers','images/algiers-map.gif'),
+				'Cairo': new CityTubeMap('Cairo','images/cairo-map.gif'),
+				'Casablanca': new CityTubeMap('Casablanca','images/casablanca-map.gif'),
+				'Constantine': new CityTubeMap('Constantine','images/constantine-map.gif'),
+				'Durban': new CityTubeMap('Durban','images/durban-map.gif'),
+				'Gauteng': new CityTubeMap('Gauteng','images/gauteng-map.gif'),
+				'Lagos': new CityTubeMap('Lagos','images/lagos-map.gif'),
+				'Oran': new CityTubeMap('Oran','images/oran-map.gif'),
+				'Rabat': new CityTubeMap('Rabat','images/rabat-map.gif'),
+				'Tunis': new CityTubeMap('Tunis','images/tunis-map.gif')
+			};
+			
+			var windowHeight;
+			var windowWidth;
+			var footerHeight;
+			var localStorageEnabled;
+			
+			var pageTubeMap;
+			var pageTubeMapImage;
+			
+			function loaded() {
+				console.log('loaded');
+				
+				//disable taping footer
+				$("[data-role=footer]").fixedtoolbar({ tapToggle: false });
+			
+				windowHeight	= $(window).height();
+				windowWidth		= $(window).width();
+				footerHeight	= $('#main-footer').height();
+				
+				pageTubeMap			= $('#page-tube-map');
+				pageTubeMapImage	= $('#page-tube-map-image');
+				
+				pageTubeMap.height(windowHeight-footerHeight);
+				pageTubeMap.width(windowWidth);
+				
+				//does local storage exist?
+				if (window.localStorage) {
+					localStorageEnabled	= true;
+				} else {
+					localStorageEnabled	= false;
+				}
+				
+				
+	  			fleXenv.fleXcrollMain('page-tube-map');
+	  			
+	  			fleXenv.fleXcrollMain('city-menu-popup-list');
+	  			
+	  			//load city from local storage
+				updateTubeMap();
+			}
+			
+			function updateTubeMap(city) {
+				console.log('updateTubeMap[' + city +']');
+				
+				$('#city-menu-popup').popup('close');
+			
+				if (!city) {
+					if (localStorageEnabled) {
+						var lastSelectedCity = window.localStorage.getItem("keyLastSelectedCity");
+						if (lastSelectedCity) {
+							city	= lastSelectedCity;
+						} else {
+							city	= defaultCity;
+						}					
+					} else {
+						city	= defaultCity;
+					}
+				}
+				
+				var tubeMap	= tubeMapsImages[city];
+				if (tubeMap==undefined) {
+					alert('Error: City ' + city + ' not found!');
+					tubeMap	= tubeMapsImages[defaultCity];
+				}
+				
+				pageTubeMapImage.attr('src',tubeMap.imagePath);
+				
+				if (localStorageEnabled) {
+					window.localStorage.setItem("keyLastSelectedCity", city);
+				}
+				
+				if (pageTubeMap.fleXcroll) { 
+					pageTubeMap.fleXcroll.setScrollPos(0,0);
+				}
+			}
+
+			document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+			document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 500); }, false);
+			//window.addEventListener('load', setTimeout(function () { loaded(); }, 500), false);
+		</script>
+	</head>
+	
+	//TODO zoomming image
+	// load nbew city - reset position to 0,0
+	
+	<body>
+		<!--- Main Page --->
+		<div data-role="page" id="main-page" data-theme="d">
+			
+			<div data-role="popup" id="city-menu-popup">
+				<ul data-role="listview" data-filter="false" data-autodividers="true" data-inset="true" style="min-height:300px; max-height:500px; min-width:200px;" data-theme="c" data-divider-theme="c" id="city-menu-popup-list">
+					<li><a href="#" onClick="updateTubeMap('Algiers')">Algiers</a></li>
+					<li><a href="#" onClick="updateTubeMap('Cairo')">Cairo</a></li>
+					<li><a href="#" onClick="updateTubeMap('Casablanca')">Casablanca</a></li>
+					<li><a href="#" onClick="updateTubeMap('Constantine')">Constantine</a></li>
+					<li><a href="#" onClick="updateTubeMap('Durban')">Durban</a></li>
+					<li><a href="#" onClick="updateTubeMap('Gauteng')">Gauteng</a></li>
+					<li><a href="#" onClick="updateTubeMap('Lagos')">Lagos</a></li>
+					<li><a href="#" onClick="updateTubeMap('Oran')">Oran</a></li>
+					<li><a href="#" onClick="updateTubeMap('Rabat')">Rabat</a></li>
+					<li><a href="#" onClick="updateTubeMap('Tunis')">Tunis</a></li>
+				</ul>
+			</div>
+			
+			<div data-role="popup" id="info-popup" data-theme="c">
+				<p>
+				<div>
+					<center>
+					<img src="icons/icon-36.png" style="vertical-align: middle;"/>
+					<span style="vertical-align: middle;"><strong>SubwayMaps (Africa) v1.3.0</strong></span>
+					</center>
+				</div>
+				</p>
+				<p>Developed by AXIS APPLICATIONS<p>
+				<p>Homepage:<br><a href="http://www.axisapplications.com">www.axisapplications.com</a><p>
+				<p>E-Mail:<br><a href="mailto:support@axisapplications.com">support@axisapplications.com</a><p>
+				<p>Thanks to Robert Schwandl for his maps!<p>
+			</div>
+  			
+  			<div data-role="content" id="page-tube-map" style="overflow: auto; position: relative; padding: 0px;">
+				<!-- dynamic content -->
+				<img id='page-tube-map-image' src="" onLoad="fleXenv.updateScrollBars();"/>
+			</div>
+
+  			<div data-role="footer" data-position="fixed" data-theme="c" class="nav-menu" id="main-footer">
+				<div data-role="navbar" class="nav-menu">
+					<ul>
+						<li><a href="#city-menu-popup" id="main-footer-city" data-icon="search" data-rel="popup">City</a></li>
+						<li><a href="#info-popup" id="main-footer-info" data-icon="info" data-rel="popup">Info</a></li>
+					</ul>
+				</div>
+			</div>
+
+		</div>
+	</body>
+</html>
